@@ -8,6 +8,7 @@ app.config.from_pyfile('settings.py')
 def collection():
     return flask.jsonify({
         'feed': 'feed.json',
+        'data_urls': 'doc/{id}',
     })
 
 def format_document(doc):
@@ -34,6 +35,13 @@ def feed(cursor=None):
         'documents': documents,
         'next': next_url,
     })
+
+@app.route('/doc/<path:doc_id>')
+def doc(doc_id):
+    czl_api_url = flask.current_app.config['CZL_API_URL']
+    czl_doc_url = czl_api_url + 'publications/' + doc_id
+    resp = requests.get(czl_doc_url).json()
+    return flask.jsonify(format_document(resp))
 
 if __name__ == "__main__":
     app.run(debug=True)
