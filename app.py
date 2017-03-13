@@ -4,6 +4,14 @@ import flask
 app = flask.Flask(__name__)
 app.config.from_pyfile('settings.py')
 
+def fix_diacritics(text):
+    return (text
+        .replace('ş', 'ș')
+        .replace('Ş', 'Ș')
+        .replace('ţ', 'ț')
+        .replace('Ţ', 'Ț')
+    )
+
 @app.route('/collection.json')
 def collection():
     return flask.jsonify({
@@ -12,6 +20,8 @@ def collection():
     })
 
 def format_document(doc):
+    for field in ['title', 'description']:
+        doc[field] = fix_diacritics(doc[field])
     return {
         'id': doc['id'],
         'version': doc['_created_at'],
